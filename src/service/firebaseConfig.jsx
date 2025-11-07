@@ -3,17 +3,17 @@ import { initializeApp } from "firebase/app";
 // import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-import { getFirestore} from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyD4lhRN6aK1FxZxbBeKFlPimCpPeX7FItg",
-    authDomain: "ai-travel-planner-3ac26.firebaseapp.com",
-    projectId: "ai-travel-planner-3ac26",
-    storageBucket: "ai-travel-planner-3ac26.firebasestorage.app",
-    messagingSenderId: "1032650322951",
-    appId: "1:1032650322951:web:b6d89073d5aa2537bf26a2",
-    measurementId: "G-CB3WWE6GVF"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
