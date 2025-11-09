@@ -17,24 +17,48 @@ import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { toast } from 'react-toastify';
 
+
+
+const STORAGE_EVENT = new Event('userUpdate');  //Ye browser me ek “custom event” fire karta hai.
+
 const Header = () => {
     const [user, setUser] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [loading, setLoading] = useState(false);
+
+
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
+
+        const updateUser = () => {
+            const newUser = localStorage.getItem('user');
+            setUser(newUser ? JSON.parse(newUser) : null);
+        };
+
+        // Listen to both custom and native storage events
+        window.addEventListener('userUpdate', updateUser);
+        window.addEventListener('storage', updateUser);
+
+        return () => {
+            window.removeEventListener('userUpdate', updateUser);
+            window.removeEventListener('storage', updateUser);
+        };
     }, []);
+
+
 
     const handleSignOut = () => {
         googleLogout();
         localStorage.removeItem('user');
         setUser(null);
+        window.dispatchEvent(STORAGE_EVENT); //  instantly update header
         toast.info("You have been signed out successfully!");
     };
+
 
     const login = useGoogleLogin({
         onSuccess: (tokenResponse) => {
@@ -56,23 +80,26 @@ const Header = () => {
                 Accept: 'application/json'
             }
         })
-        .then((resp) => {
-            console.log("User Profile Data from Google:", resp.data);
-            localStorage.setItem('user', JSON.stringify(resp.data));
-            setUser(resp.data);
-            setOpenDialog(false);
-            toast.success(`Welcome, ${resp.data.given_name || resp.data.name}!`);
-            if (!resp.data.email) {
-                toast.warn("Email not retrieved. Please try signing in again.");
-            }
-        })
-        .catch((error) => {
-            console.error("Failed to fetch user profile:", error);
-            toast.error("Error fetching user profile. Please try again.");
-        })
-        .finally(() => {
-            setLoading(false);
-        });
+            .then((resp) => {
+                console.log("User Profile Data from Google:", resp.data);
+                localStorage.setItem('user', JSON.stringify(resp.data));
+                setUser(resp.data);
+
+                window.dispatchEvent(STORAGE_EVENT);
+
+                setOpenDialog(false);
+                toast.success(`Welcome, ${resp.data.given_name || resp.data.name}!`);
+                if (!resp.data.email) {
+                    toast.warn("Email not retrieved. Please try signing in again.");
+                }
+            })
+            .catch((error) => {
+                console.error("Failed to fetch user profile:", error);
+                toast.error("Error fetching user profile. Please try again.");
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     };
 
     return (
